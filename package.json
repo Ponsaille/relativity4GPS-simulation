@@ -17,5 +17,9 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.0.1",
     "rollup-watch": "^4.3.1"
+  },
+  "dependencies": {
+    "p5": "^0.8.0",
+    "rollup-plugin-node-resolve": "^4.2.4"
   }
 }

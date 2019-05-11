@@ -1,6 +1,7 @@
 import replace from "rollup-plugin-replace";
 import livereload from 'rollup-plugin-livereload';
-import serve from 'rollup-plugin-serve'
+import serve from 'rollup-plugin-serve';
+import resolve from 'rollup-plugin-node-resolve';
 import fs from "fs-extra";
 import rimraf from "rimraf";
 
@@ -17,11 +18,12 @@ export default  {
   input: "src/scripts/app.js",
   output: {
     file: "dist/scripts/app.js",
-    format: "iife"
+    format: "cjs"
   },
   plugins: [
     serve("dist"),
     livereload("dist"),
+    resolve(),
     replace({
       delimiters: ["{{", "}}"],
       version
