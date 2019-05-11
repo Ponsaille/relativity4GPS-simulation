@@ -1,3 +1,1 @@
-import { test } from './test';
-
-test();
+console.log("3")
