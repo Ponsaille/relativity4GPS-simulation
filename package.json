@@ -1,0 +1,19 @@
+{
+  "name": "gpssimulation",
+  "version": "0.0.1",
+  "description": "Trying to simulate time delays due to relativity with p5.js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx rollup -c --watch",
+    "build": "npx rollup -c && xcopy src\\static dist\\static\\ /E /I /Y"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "fs-extra": "^7.0.1",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.11.3",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-watch": "^4.3.1"
+  }
+}
