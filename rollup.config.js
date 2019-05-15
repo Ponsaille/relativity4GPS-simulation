@@ -18,12 +18,15 @@ export default  {
   input: "src/scripts/app.js",
   output: {
     file: "dist/scripts/app.js",
-    format: "cjs"
+    format: "iife"
   },
   plugins: [
     serve("dist"),
     livereload("dist"),
-    resolve(),
+    resolve({
+      mainFields: ['module', 'main'],
+      browser: true
+    }),
     replace({
       delimiters: ["{{", "}}"],
       version
