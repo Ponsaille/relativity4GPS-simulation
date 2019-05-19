@@ -31,7 +31,7 @@ class Satellite {
     
     this.theta = math.sum(this.theta, this.dtheta);
     this.r = math.divide(this.p, math.add(math.bignumber(1), math.multiply(this.e, math.cos(this.theta))));
-    this.x = math.subtract(math.multiply(this.r, math.subtract(0,math.cos(this.theta))), this.c);
+    this.x = math.add(math.multiply(this.r, math.cos(this.theta)), this.c);
     this.y = math.multiply(this.r, math.sin(this.theta));
     this.v = math.eval('sqrt( mu * ( ( 2 / r ) - (1 / a ) ) )', {
       mu: this.mu,
@@ -48,7 +48,8 @@ class Satellite {
       x: this.x,
       y: this.y,
       v: this.v,
-      r: this.r
+      r: this.r,
+      theta: this.theta
     }
   }
 
