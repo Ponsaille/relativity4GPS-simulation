@@ -14,8 +14,8 @@ const ratio = math.divide(earthSize, constants.earthRadius);
 
 // Les variables initiales
 let perigee = math.add(math.bignumber('20180000'), constants.earthRadius);
-//let apogee = perigee;
-let apogee = math.add(perigee, math.bignumber('201800000'));
+let apogee = perigee;
+//let apogee = math.add(perigee, math.bignumber('201800000'));
 
 
 // Les variables initiales déduites
@@ -47,7 +47,8 @@ window.draw = function () {
     Vsttelite = ${math.round(satellitePos.v)} m/s,
     r = ${math.round(satellitePos.r)} m,
     t (x${multiplier}) = ${math.round(t)} s,
-    Décalage lié à l'effet Einstein depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1}
+    Décalage lié à l'effet Einstein depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1} s,
+    Décalage lié à l'effet Dopler (Simplifié: celui pris en compte par les sattellite) depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1} s
   `, 10, 10);
 }
 
@@ -62,4 +63,12 @@ function calcEinsteinEffect(Rsol, Rsat, t) {
   })
 }
 
-console.log(calcEinsteinEffect(constants.earthRadius, perigee, math.bignumber(24 * 60 * 60))*1)
+function calcSimplifiedDoplerEffect(Vsat, t) {
+  return math.eval('( (- Vsat ^ 2 ) / (2 * ( c ^ 2 ) ) ) * t', {
+    Vsat,
+    c: constants.c,
+    t
+  })
+}
+
+//console.log(math.add(calcEinsteinEffect(constants.earthRadius, perigee, math.bignumber(24 * 60 * 60)), calcSimplifiedDoplerEffect(3873,  math.bignumber(24 * 60 * 60)))*1)
