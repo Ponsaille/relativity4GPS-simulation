@@ -4,7 +4,7 @@ import Satellite from './satellite';
 
 let fps = 30;
 let t = math.bignumber(0);
-let multiplier = math.bignumber(1);
+let multiplier = math.bignumber(1000);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -14,8 +14,8 @@ const ratio = math.divide(earthSize, constants.earthRadius);
 
 // Les variables initiales
 let perigee = math.add(math.bignumber('20180000'), constants.earthRadius);
-let apogee = perigee;
-//let apogee = math.add(perigee, math.bignumber('201800000'));
+//let apogee = perigee;
+let apogee = math.add(perigee, math.bignumber('201800000'));
 
 
 // Les variables initiales déduites
@@ -34,16 +34,18 @@ window.setup = function () {
 }
 
 window.draw = function () {
-  t = frameRate() == 0 ? 0 :  math.add(t, math.multiply(math.bignumber(1/frameRate()), multiplier)) // Little fix to take in account the changing rate
+  let dt = frameRate() == math.bignumber(0) ? 0 : math.multiply(math.bignumber(1/frameRate()), multiplier) // Little fix to take in account the changing rate
+  t =  math.add(t, dt) 
   background(0);
   ellipse(width/2, height/2, math.number(math.multiply(2, math.multiply(a, ratio))), math.number(math.multiply(2, math.multiply(b, ratio))));
   ellipse(width/2-math.multiply(c, ratio), height/2, earthSize, earthSize);
-  let satellitePos = satellite.getAt(t);
+  let satellitePos = satellite.getNextPosition(dt);
   ellipse(math.multiply(satellitePos.x,ratio)*1+width/2, math.multiply(satellitePos.y,ratio)*1+height/2, earthSize, earthSize);
   fill(255);
   text(`
     fps: ${Math.round(frameRate())},
     Vsttelite = ${satellitePos.v*1},
+    r = ${satellitePos.r},
     t = ${math.round(t)}, (x${multiplier})
   `, 10, 10);
 }

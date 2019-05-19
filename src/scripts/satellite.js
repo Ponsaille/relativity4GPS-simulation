@@ -13,7 +13,7 @@ class Satellite {
     this.n = math.divide(math.multiply(math.bignumber(2), math.bignumber(Math.PI)), this.P);
     this.x = math.multiply(math.sum(this.r), math.subtract(0,math.cos(this.theta)));
     this.y = math.multiply(this.r, math.sin(this.theta));
-    this.mu = math.eval('(4 * ( pi ^ 2 ) * ( a ^3 ) ) / ( P ^ 2 )', {
+    this.mu = math.eval('(4 * ( pi ^ 2 ) * ( a ^ 3 ) ) / ( P ^ 2 )', {
       P: this.P,
       pi: math.bignumber(Math.PI),
       a: this.a
@@ -38,34 +38,6 @@ class Satellite {
       r: this.r,
       a: this.a
     });
-  }
-  
-  getAt(t) {
-    t = math.bignumber(t);
-    
-    const  theta = math.eval('a * b * n * t / ( r * r )', {
-      a: this.a,
-      b: this.b,
-      n: this.n,
-      r: this.r,
-      t
-    })
-
-    const r = math.divide(this.p, math.add(math.bignumber(1), math.multiply(this.e, math.cos(theta))));
-    const x = math.subtract(math.multiply(r, math.subtract(0,math.cos(theta))), this.c);
-    const y = math.multiply(r, math.sin(theta));
-    const v = math.eval('sqrt( mu * ( ( 2 / r ) - (1 / a ) ) )', {
-      mu: this.mu,
-      r: this.r,
-      a: this.a
-    });
-
-    return {
-      r,
-      x,
-      y,
-      v
-    }
   }
 
   getNextPosition(dt) {
