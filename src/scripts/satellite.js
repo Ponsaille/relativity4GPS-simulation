@@ -47,7 +47,8 @@ class Satellite {
     return {
       x: this.x,
       y: this.y,
-      v: this.v
+      v: this.v,
+      r: this.r
     }
   }
 

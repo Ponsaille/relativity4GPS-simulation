@@ -2,9 +2,9 @@ import * as p5 from 'p5';
 import constants from './constants';
 import Satellite from './satellite';
 
-let fps = 30;
+let fps = 60;
 let t = math.bignumber(0);
-let multiplier = math.bignumber(1000);
+let multiplier = math.bignumber(100);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -44,8 +44,22 @@ window.draw = function () {
   fill(255);
   text(`
     fps: ${Math.round(frameRate())},
-    Vsttelite = ${satellitePos.v*1},
-    r = ${satellitePos.r},
-    t = ${math.round(t)}, (x${multiplier})
+    Vsttelite = ${math.round(satellitePos.v)} m/s,
+    r = ${math.round(satellitePos.r)} m,
+    t (x${multiplier}) = ${math.round(t)} s,
+    Décalage lié à l'effet Einstein depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1}
   `, 10, 10);
 }
+
+function calcEinsteinEffect(Rsol, Rsat, t) {
+  return math.eval('( ( ( G * M ) / (c ^ 2) ) * ( ( 1 / Rsol ) - ( 1 / Rsat ) ) ) * t', {
+    G: constants.G,
+    M: constants.earthMass,
+    c: constants.c,
+    Rsol,
+    Rsat,
+    t
+  })
+}
+
+console.log(calcEinsteinEffect(constants.earthRadius, perigee, math.bignumber(24 * 60 * 60))*1)
