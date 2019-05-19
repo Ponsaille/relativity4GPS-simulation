@@ -18,7 +18,7 @@ export default  {
   input: "src/scripts/app.js",
   output: {
     file: "dist/scripts/app.js",
-    format: "iife"
+    format: "cjs"
   },
   plugins: [
     serve("dist"),

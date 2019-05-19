@@ -6,9 +6,34 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="/static/stylesheets/syle.css">
   <title>Simulation</title>
+  <style>
+    html, body {
+	    margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #inputs {
+      text-align: right;
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      color: white;
+      padding: 10px;
+    }
+
+    #inputs label {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <script src="./static/scripts/math.min.js"></script>
+  <form id="inputs">
+    <label>Perigee : <input type="number" id="perigee"></label>
+    <label>Apogee : Perigee + <input type="number" id="apogee"></label>
+    <label>Periode de révolution : <input type="number" id="period"></label>
+    <input type="submit" value="Relancer avec ces paramètres">
+  </form>
+  <script src="./static/scripts/math.min.js"></script>
   <script src="./scripts/app.js"></script>
 </body>
 </html>

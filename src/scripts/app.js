@@ -2,7 +2,7 @@ import * as p5 from 'p5';
 import constants from './constants';
 import Satellite from './satellite';
 
-let fps = 60;
+let fps = 30;
 let t = math.bignumber(0);
 let multiplier = math.bignumber(5000);
 
@@ -16,6 +16,28 @@ const ratio = math.divide(earthSize/2, constants.earthRadius);
 let perigee = math.add(math.bignumber('20180000'), constants.earthRadius);
 //let apogee = perigee;
 let apogee = math.add(perigee, math.bignumber('201800000'));
+let revolutionPeriod = math.bignumber((24*60*60))
+
+const form = document.getElementById("inputs")
+const perigeeInput = document.getElementById("perigee")
+const apogeeInput = document.getElementById("apogee")
+const periodInput = document.getElementById("period")
+perigeeInput.value = perigee;
+apogeeInput.value = apogee-perigee;
+periodInput.value = revolutionPeriod;
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+  perigee = math.bignumber(perigeeInput.value);
+  apogee = math.add(math.bignumber(apogeeInput.value), perigee);
+  revolutionPeriod = math.bignumber(periodInput.value);
+  a = math.bignumber(math.divide(math.add(perigee, apogee), 2));  
+  c = math.bignumber(math.subtract(a, perigee));
+  e = math.bignumber(math.divide(c, a));
+  b = math.bignumber(math.sqrt(math.subtract(math.multiply(a, a), math.multiply(c,c))))
+  satellite = new Satellite(perigee, apogee, math.bignumber((11*60 + 58)*60));
+  receiver = new Satellite(constants.earthRadius, constants.earthRadius, revolutionPeriod)
+})
 
 
 // Les variables initiales déduites
@@ -26,7 +48,7 @@ let b = math.sqrt(math.subtract(math.multiply(a, a), math.multiply(c,c)))
 
 
 let satellite = new Satellite(perigee, apogee, math.bignumber((11*60 + 58)*60));
-let receiver = new Satellite(constants.earthRadius, constants.earthRadius, math.bignumber((24*60*60))) //Simule la rotation de la terre
+let receiver = new Satellite(constants.earthRadius, constants.earthRadius, revolutionPeriod) //Simule la rotation de la terre
 
 window.setup = function () {
   createCanvas(width,height);
@@ -53,7 +75,7 @@ window.draw = function () {
     t (x${multiplier}) = ${math.round(t)} s,
     Décalage lié à l'effet Einstein depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1} s,
     Décalage lié à l'effet Dopler (Simplifié: celui pris en compte par les sattellite) depuis le début : ${calcSimplifiedDoplerEffect(receiver.v, t)*1} s,
-    Correction liée à l'excentricité : ${periodicalComponent(toECEF(satellitePos.x, satellitePos.y, math.subtract(satellitePos.theta, receiverPos.theta)), toECEF(satelliteSpeed[0], satelliteSpeed[1], math.subtract(satellitePos.theta, receiverPos.theta)))}
+    Correction liée à l'excentricité : ${1*periodicalComponent(toECEF(satellitePos.x, satellitePos.y, math.subtract(satellitePos.theta, receiverPos.theta)), toECEF(satelliteSpeed[0], satelliteSpeed[1], math.subtract(satellitePos.theta, receiverPos.theta)))}
   `, 10, 10);
 }
 
