@@ -22,15 +22,18 @@ const form = document.getElementById("inputs")
 const perigeeInput = document.getElementById("perigee")
 const apogeeInput = document.getElementById("apogee")
 const periodInput = document.getElementById("period")
+const multiplierInput = document.getElementById("multiplier")
 perigeeInput.value = perigee;
 apogeeInput.value = apogee-perigee;
 periodInput.value = revolutionPeriod;
+multiplierInput.value = multiplier;
 
 form.addEventListener("submit", function(e) {
   e.preventDefault();
   perigee = math.bignumber(perigeeInput.value);
   apogee = math.add(math.bignumber(apogeeInput.value), perigee);
   revolutionPeriod = math.bignumber(periodInput.value);
+  multiplier = math.bignumber(multiplierInput.value);
   a = math.bignumber(math.divide(math.add(perigee, apogee), 2));  
   c = math.bignumber(math.subtract(a, perigee));
   e = math.bignumber(math.divide(c, a));
