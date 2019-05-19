@@ -38,13 +38,38 @@ class Satellite {
       r: this.r,
       a: this.a
     });
-    console.log(this.r*this.dtheta/dt);
+  }
+  
+  getAt(t) {
+    t = math.bignumber(t);
+    
+    const  theta = math.eval('a * b * n * t / ( r * r )', {
+      a: this.a,
+      b: this.b,
+      n: this.n,
+      r: this.r,
+      t
+    })
+
+    const r = math.divide(this.p, math.add(math.bignumber(1), math.multiply(this.e, math.cos(theta))));
+    const x = math.subtract(math.multiply(r, math.subtract(0,math.cos(theta))), this.c);
+    const y = math.multiply(r, math.sin(theta));
+    const v = math.eval('sqrt( mu * ( ( 2 / r ) - (1 / a ) ) )', {
+      mu: this.mu,
+      r: this.r,
+      a: this.a
+    });
+
+    return {
+      r,
+      x,
+      y,
+      v
+    }
   }
 
   getNextPosition(dt) {
     dt = math.bignumber(dt);
-    let previousX = this.x;
-    let previousY = this.y;
     this.update(dt);
      
     return {
