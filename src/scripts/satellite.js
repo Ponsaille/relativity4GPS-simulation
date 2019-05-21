@@ -1,4 +1,10 @@
 class Satellite {
+  /**
+   * Create a satellite at the angle 0 and with t = 0
+   * @param {math.BigNumber} perigee 
+   * @param {math.BigNumber} apogee 
+   * @param {math.BigNumber} P 
+   */
   constructor(perigee, apogee, P) {
     this.theta = math.bignumber(0);
     this.perigee = perigee;
@@ -20,6 +26,10 @@ class Satellite {
     });
   }
 
+  /**
+   * Incrementing time and recalculating values for the satellite
+   * @param {math.BigNumber} dt 
+   */
   update(dt) {
     this.dtheta = math.eval('a * b * n * t / ( r * r )', {
       a: this.a,
@@ -39,7 +49,11 @@ class Satellite {
       a: this.a
     });
   }
-
+  
+  /**
+   * Use update but returns the next positions
+   * @param {math.BigNumber} dt
+   */
   getNextPosition(dt) {
     dt = math.bignumber(dt);
     this.update(dt);

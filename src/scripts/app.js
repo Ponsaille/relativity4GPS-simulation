@@ -2,22 +2,27 @@ import * as p5 from 'p5';
 import constants from './constants';
 import Satellite from './satellite';
 
+
+// Time variables
 let fps = 30;
 let t = math.bignumber(0);
-let multiplier = math.bignumber(5000);
+let multiplier = math.bignumber(1000);
 
+// Graphical variables
 const width = window.innerWidth;
 const height = window.innerHeight;
 const earthSize = 30;
 
-const ratio = math.divide(earthSize/2, constants.earthRadius);
+const ratio = math.divide(earthSize/2, constants.earthRadius); // Ratio allowing a good range of heights
 
-// Les variables initiales
+// Initial variables
 let perigee = math.add(math.bignumber('20180000'), constants.earthRadius);
-//let apogee = perigee;
-let apogee = math.add(perigee, math.bignumber('201800000'));
-let revolutionPeriod = math.bignumber((24*60*60))
+let apogee = perigee;
 
+let revolutionPeriod = math.bignumber((11*60 + 58)*60)
+
+
+// Formular gestion
 const form = document.getElementById("inputs")
 const perigeeInput = document.getElementById("perigee")
 const apogeeInput = document.getElementById("apogee")
@@ -38,50 +43,90 @@ form.addEventListener("submit", function(e) {
   c = math.bignumber(math.subtract(a, perigee));
   e = math.bignumber(math.divide(c, a));
   b = math.bignumber(math.sqrt(math.subtract(math.multiply(a, a), math.multiply(c,c))))
-  satellite = new Satellite(perigee, apogee, math.bignumber((11*60 + 58)*60));
-  receiver = new Satellite(constants.earthRadius, constants.earthRadius, revolutionPeriod)
+  satellite = new Satellite(perigee, apogee, revolutionPeriod);
+  receiver = new Satellite(constants.earthRadius, constants.earthRadius, math.bignumber(86400))
+  t = 0;
 })
 
 
-// Les variables initiales déduites
-let a = math.divide(math.add(perigee, apogee), 2);  
-let c = math.subtract(a, perigee);
-let e = math.divide(c, a);
+//Variables deducted from the initial
+let a = math.divide(math.add(perigee, apogee), 2); // Demi-grand axe 
+let c = math.subtract(a, perigee); // Distance entre le centre de l'éllipse et un des foyers
+let e = math.divide(c, a); // Exentricity
 let b = math.sqrt(math.subtract(math.multiply(a, a), math.multiply(c,c)))
 
 
-let satellite = new Satellite(perigee, apogee, math.bignumber((11*60 + 58)*60));
-let receiver = new Satellite(constants.earthRadius, constants.earthRadius, revolutionPeriod) //Simule la rotation de la terre
+let satellite = new Satellite(perigee, apogee, revolutionPeriod); // Satellite's definition
+let receiver = new Satellite(constants.earthRadius, constants.earthRadius, math.bignumber(24*60*60)) // Simulate earth's rotation
 
+
+// Make the annimation full screen and fluid
 window.setup = function () {
   createCanvas(width,height);
   background(0);
   frameRate(fps);
 }
-let receiverPos = receiver.getNextPosition(0);
+
 window.draw = function () {
-  let dt = frameRate() == math.bignumber(0) ? 0 : math.multiply(math.bignumber(1/frameRate()), multiplier) // Little fix to take in account the changing rate
+  // Going to the next position in time and fixing fps variability
+  let dt = frameRate() == math.bignumber(0) ? 0 : math.multiply(math.bignumber(1/frameRate()), multiplier)
   t =  math.add(t, dt) 
+
   background(0);
+
+  // Draw ellipse
   ellipse(width/2, height/2, math.number(math.multiply(2, math.multiply(a, ratio))), math.number(math.multiply(2, math.multiply(b, ratio))));
+  
+  // Draw earth
   ellipse(math.add(width/2, math.multiply(c, ratio))*1, height/2, earthSize, earthSize);
+
+  // Getting data on the satellite at t+dt and drawing it
   let satellitePos = satellite.getNextPosition(dt);
   ellipse(math.multiply(satellitePos.x,ratio)*1+width/2, -math.multiply(satellitePos.y,ratio)*1+height/2, earthSize/3, earthSize/3);
+
+  // Getting data on the receiver at t+dt and drawing it
   let receiverPos = receiver.getNextPosition(dt);
   ellipse(math.multiply(receiverPos.x,ratio)*1+width/2+math.multiply(c, ratio)*1, -math.multiply(receiverPos.y,ratio)*1+height/2, earthSize/5, earthSize/5);
+  
   fill(255);
+
+  // Vectorialisation of speed
   let satelliteSpeed = vectorizeSpeeds(satellitePos.v, satellitePos.theta)
+  let Vre = vectorizeSpeeds(receiverPos.v, receiverPos.theta);
+
+  // Compute the resultat speed
+  let vlin = math.eval('sqrt( ( Vsatx - Vrex ) ^ 2 + ( Vsaty - Vrey ) ^ 2 )', {
+    Vsatx: satelliteSpeed[0],
+    Vsaty: satelliteSpeed[1],
+    Vrex: Vre[0],
+    Vrey: Vre[1]
+  });
+
+  // Compute the diferent effects
+  let einstein = math.multiply(calcEinsteinEffect(constants.earthRadius, satellitePos.r, t), math.bignumber('1e+9'));
+  let doppler = math.multiply(calcSimplifiedDoplerEffect(vlin, t), math.bignumber('1e+9'))
+  let corrExentr = math.multiply(periodicalComponent(toECEF(satellitePos.x, satellitePos.y, math.subtract(satellitePos.theta, receiverPos.theta)), toECEF(satelliteSpeed[0], satelliteSpeed[1], math.subtract(satellitePos.theta, receiverPos.theta))), math.bignumber('1e+9'))
+  
+  
   text(`
     fps: ${Math.round(frameRate())},
     Vsttelite = ${math.round(satellitePos.v)} m/s,
     r = ${math.round(satellitePos.r)} m,
     t (x${multiplier}) = ${math.round(t)} s,
-    Décalage lié à l'effet Einstein depuis le début : ${calcEinsteinEffect(constants.earthRadius, satellitePos.r, t)*1} s,
-    Décalage lié à l'effet Dopler (Simplifié: celui pris en compte par les sattellite) depuis le début : ${calcSimplifiedDoplerEffect(receiver.v, t)*1} s,
-    Correction liée à l'excentricité : ${1*periodicalComponent(toECEF(satellitePos.x, satellitePos.y, math.subtract(satellitePos.theta, receiverPos.theta)), toECEF(satelliteSpeed[0], satelliteSpeed[1], math.subtract(satellitePos.theta, receiverPos.theta)))}
+    Décalage lié à l'effet Einstein depuis le début : ${einstein.toFixed(10)} ns,
+    Décalage lié à l'effet Dopler (Simplifié: celui pris en compte par les sattellite) depuis le début : ${doppler.toFixed(10)} s,
+    Correction liée à l'excentricité : ${corrExentr.toFixed(10)}
+    Somme: ${math.sum(einstein, doppler).toFixed(10)} ns
   `, 10, 10);
 }
 
+
+/**
+ * Compute the einstein effect
+ * @param {math.BigNumber} Rsol : distance between earth center and the receiver
+ * @param {math.BigNumber} Rsat : distance between earth center and the satellite
+ * @param {math.BigNumber} t : delta t since the beginning of the equation
+ */
 function calcEinsteinEffect(Rsol, Rsat, t) {
   return math.eval('( ( ( G * M ) / (c ^ 2) ) * ( ( 1 / Rsol ) - ( 1 / Rsat ) ) ) * t', {
     G: constants.G,
@@ -93,26 +138,42 @@ function calcEinsteinEffect(Rsol, Rsat, t) {
   })
 }
 
-function calcSimplifiedDoplerEffect(Vsat, t) {
-  return math.eval('( (- Vsat ^ 2 ) / (2 * ( c ^ 2 ) ) ) * t', {
-    Vsat,
+/**
+ * Compute the simplified doppler effect
+ * @param {math.BigNumber} V : Resultant speed (linear)
+ * @param {math.BigNumber} t : delta t since the beginning of the equation
+ */
+function calcSimplifiedDoplerEffect(V, t) {
+  return math.eval('( (- V ^ 2 ) / (2 * ( c ^ 2 ) ) ) * t', {
+    V,
     c: constants.c,
     t
   })
 }
 
+/**
+ * Computing the speed vector
+ * @param {math.BigNumber} v : Linear speed
+ * @param {math.BigNumber} theta : Angle - pi (or angle of the satellite)
+ */
 function vectorizeSpeeds(v, theta) {
   const vx = math.eval('v * cos( theta )', {
     v,
-    theta
+    theta: math.add(theta, math.bignumber(Math.PI/2))
   })
   const vy = math.eval('v * sin( theta )', {
     v,
-    theta
+    theta:  math.add(theta, math.bignumber(Math.PI/2))
   })
   return [vx, vy]
 }
 
+/**
+ * Changing for the plan space to the Earth Centered and Earth Fixed space
+ * @param {math.BigNumber} x 
+ * @param {math.BigNumber} y 
+ * @param {math.BigNumber} theta 
+ */
 function toECEF(x, y, theta) {
   return [
     math.eval('x * cos( theta ) + y * sin( theta )', {
@@ -129,8 +190,11 @@ function toECEF(x, y, theta) {
   ]
 }
 
+/**
+ * Compute the correction linked to the exentricity of the orbit
+ * @param {math.BigNumber} Rsat 
+ * @param {math.BigNumber} Vsat 
+ */
 function periodicalComponent(Rsat, Vsat) {
   return math.multiply(math.bignumber(-2), math.divide(math.dot(Rsat, Vsat), math.multiply(constants.c, constants.c)))
 }
-
-//console.log(math.add(calcEinsteinEffect(constants.earthRadius, perigee, math.bignumber(24 * 60 * 60)), calcSimplifiedDoplerEffect(3873,  math.bignumber(24 * 60 * 60)))*1)
