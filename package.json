@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx rollup -c --watch",
-    "build": "npx rollup -c && xcopy src\\static dist\\static\\ /E /I /Y"
+    "build": "npx rollup -c"
   },
   "author": "",
   "license": "ISC",
