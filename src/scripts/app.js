@@ -113,8 +113,8 @@ window.draw = function () {
 Vsttelite = ${math.round(satellitePos.v)} m/s,
 r = ${math.round(satellitePos.r)} m,
 t (x${multiplier}) = ${math.round(t)} s,
-Décalage lié à l'effet Einstein depuis le début : ${einstein.toFixed(10)} ns,
-Décalage lié à l'effet Dopler (Simplifié: celui pris en compte par les sattellite) depuis le début : ${doppler.toFixed(10)} ns,
+Désynchronisation gravitationnelle depuis le début : ${einstein.toFixed(10)} ns,
+Désynchronisation cinématique (Simplifié: celui pris en compte par les sattellite) depuis le début : ${doppler.toFixed(10)} ns,
 Correction liée à l'excentricité : ${corrExentr.toFixed(10)} ns
 Somme: ${math.sum(einstein, doppler).toFixed(10)} ns
   `, 10, 10, width, height);
