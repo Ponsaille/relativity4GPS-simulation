@@ -69,7 +69,7 @@ window.setup = function () {
 
 window.draw = function () {
   // Going to the next position in time and fixing fps variability
-  let dt = frameRate() == math.bignumber(0) ? 0 : math.multiply(math.bignumber(1/frameRate()), multiplier)
+  const dt = frameRate() == math.bignumber(0) ? 0 : math.multiply(math.bignumber(1/frameRate()), multiplier)
   t =  math.add(t, dt) 
 
   background(0);
@@ -81,31 +81,39 @@ window.draw = function () {
   ellipse(math.add(width/2, math.multiply(c, ratio))*1, height/2, earthSize, earthSize);
 
   // Getting data on the satellite at t+dt and drawing it
-  let satellitePos = satellite.getNextPosition(dt);
+  const satellitePos = satellite.getNextPosition(dt);
   ellipse(math.multiply(satellitePos.x,ratio)*1+width/2, -math.multiply(satellitePos.y,ratio)*1+height/2, earthSize/3, earthSize/3);
 
   // Getting data on the receiver at t+dt and drawing it
-  let receiverPos = receiver.getNextPosition(dt);
+  const receiverPos = receiver.getNextPosition(dt);
   ellipse(math.multiply(receiverPos.x,ratio)*1+width/2+math.multiply(c, ratio)*1, -math.multiply(receiverPos.y,ratio)*1+height/2, earthSize/5, earthSize/5);
   
   fill(255);
 
-  // Vectorialisation of speed
-  let satelliteSpeed = vectorizeSpeeds(satellitePos.v, satellitePos.theta)
-  let Vre = vectorizeSpeeds(receiverPos.v, receiverPos.theta);
+  //Speed vectors
+  const satelliteSpeed = [satellitePos.vx, satellitePos.vy]
+  const Vre = [receiverPos.v, receiverPos.theta];
+
+  // Draw speed
+  stroke(255);
+  line(satellitePos.x*ratio+width/2, -satellitePos.y*ratio+height/2, math.add(satellitePos.x, math.multiply(satellitePos.vx,10000))*ratio+width/2, -math.add(satellitePos.y, math.multiply(satellitePos.vy,10000))*ratio+height/2)
+  stroke(0);
 
   // Compute the resultat speed
-  let vlin = math.eval('sqrt( ( Vsatx - Vrex ) ^ 2 + ( Vsaty - Vrey ) ^ 2 )', {
+  const vlin = math.eval('sqrt( ( Vsatx - Vrex ) ^ 2 + ( Vsaty - Vrey ) ^ 2 )', {
     Vsatx: satelliteSpeed[0],
     Vsaty: satelliteSpeed[1],
     Vrex: Vre[0],
     Vrey: Vre[1]
   });
 
+  // Theta between the two 
+  //const relativeTheta = math.subtract(satellitePos.theta, receiverPos.theta);
+
   // Compute the diferent effects
-  let einstein = math.multiply(calcEinsteinEffect(constants.earthRadius, satellitePos.r, t), math.bignumber('1e+9'));
-  let doppler = math.multiply(calcSimplifiedDoplerEffect(vlin, t), math.bignumber('1e+9'))
-  let corrExentr = math.multiply(periodicalComponent(toECEF(satellitePos.x, satellitePos.y, math.subtract(satellitePos.theta, receiverPos.theta)), toECEF(satelliteSpeed[0], satelliteSpeed[1], math.subtract(satellitePos.theta, receiverPos.theta))), math.bignumber('1e+9'))
+  const einstein = math.multiply(calcEinsteinEffect(constants.earthRadius, satellitePos.r, t), math.bignumber('1e+9'));
+  const doppler = math.multiply(calcSimplifiedDoplerEffect(vlin, t), math.bignumber('1e+9'))
+  const corrExentr = math.multiply(periodicalComponent([satellitePos.x, satellitePos.y], satelliteSpeed), math.bignumber('1e+9'))
   
   
   text(
@@ -117,7 +125,7 @@ Désynchronisation gravitationnelle depuis le début : ${einstein.toFixed(10)} n
 Désynchronisation cinématique (Simplifié: celui pris en compte par les sattellite) depuis le début : ${doppler.toFixed(10)} ns,
 Correction liée à l'excentricité : ${corrExentr.toFixed(10)} ns
 Somme: ${math.sum(einstein, doppler).toFixed(10)} ns
-  `, 10, 10, width, height);
+  `, 10, 10, width-10, height-10);
 }
 
 

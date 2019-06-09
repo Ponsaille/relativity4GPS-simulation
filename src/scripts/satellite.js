@@ -57,13 +57,44 @@ class Satellite {
   getNextPosition(dt) {
     dt = math.bignumber(dt);
     this.update(dt);
+
+    // Calculate tangent angle
+    const k = math.divide(this.r, this.a);
+    const alpha = math.eval('acos( ( ( 2 - 2 * ( e ^ 2 ) ) / ( k * ( 2 - k ) ) ) - 1 )', {
+      k,
+      e: this.e
+    });
+
+    const pi = math.bignumber(Math.PI);
+
+    let tengentAngle
+
+    if(math.mod(this.theta, math.multiply(pi, 2)) > pi) {
+      tengentAngle = math.eval('theta + ( alpha / 2 ) + ( pi / 2 )', {
+        alpha,
+        theta: this.theta,
+        pi
+      })
+    } else {
+      tengentAngle = math.eval('theta - ( alpha / 2 ) + ( pi / 2 )', {
+        alpha,
+        theta: this.theta,
+        pi
+      })
+    }
+
+    // Calculate speed vector
+    const vx = math.multiply(this.v, math.cos(tengentAngle))
+    const vy = math.multiply(this.v, math.sin(tengentAngle))
      
     return {
       x: this.x,
       y: this.y,
       v: this.v,
       r: this.r,
-      theta: this.theta
+      theta: this.theta,
+      vx,
+      vy
     }
   }
 
